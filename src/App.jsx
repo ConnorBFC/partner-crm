@@ -857,13 +857,19 @@ export default function App() {
     setAuthErr(null)
     setAuthMsg(null)
 
+    // Automatically detects whether you are on localhost or your live workers.dev link
+    const currentOrigin = window.location.origin
+
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
-        password
+        password,
+        options: {
+          emailRedirectTo: currentOrigin
+        }
       })
       if (error) setAuthErr(error.message)
-      else setAuthMsg('Verification email sent! Please check your inbox (and junk folder) to confirm your account.')
+      else setAuthMsg('Account created! You can now sign in.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
