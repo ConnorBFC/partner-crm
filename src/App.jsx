@@ -1,122 +1,47 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { supabase } from './supabaseClient'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [status, setStatus] = useState('Checking connection to Supabase...')
+  const [isConnected, setIsConnected] = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
+
+  useEffect(() => {
+    async function testConnection() {
+      try {
+        // Pings Supabase Auth (works even before any tables exist)
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
+        setIsConnected(true)
+        setStatus('Connected to Supabase successfully!')
+      } catch (err) {
+        setIsConnected(false)
+        setStatus('Connection failed')
+        setErrorMsg(err.message)
+      }
+    }
+    testConnection()
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{ fontFamily: 'sans-serif', maxWidth: '500px', margin: '60px auto', padding: '24px', border: '1px solid #ddd', borderRadius: '8px' }}>
+      <h2 style={{ marginTop: 0 }}>Partner CRM — Setup Check</h2>
 
-      <div className="ticks"></div>
+      <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: isConnected ? '#e6f4ea' : '#fce8e6', color: isConnected ? '#137333' : '#c5221f', fontWeight: 'bold' }}>
+        {status}
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {errorMsg && (
+        <p style={{ color: '#c5221f', fontSize: '14px' }}>
+          <strong>Error details:</strong> {errorMsg}
+        </p>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <ul style={{ marginTop: '20px', lineHeight: '1.8' }}>
+        <li><strong>React Frontend:</strong> Working</li>
+        <li><strong>Supabase URL Loaded:</strong> {import.meta.env.VITE_SUPABASE_URL ? 'Yes' : 'Missing'}</li>
+        <li><strong>Supabase Key Loaded:</strong> {import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Yes' : 'Missing'}</li>
+      </ul>
+    </div>
   )
 }
-
-export default App
